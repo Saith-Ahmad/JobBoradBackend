@@ -10,11 +10,27 @@ export async function GET() {
 
 export async function POST(req: Request) {
   await connectToDB();
+
   const body = await req.json();
+  const { name, email } = body;
+  if (!email || !name) {
+    return NextResponse.json({
+      success: false,
+      message: 'All fields are required',
+    }, { status: 400 });
+  }
 
   try {
-    const newUser = await User.create(body);
-    return NextResponse.json(newUser, { status: 201 });
+    const newUser = await User.create({
+      name,
+      email,
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: newUser,
+    }, { status: 201 });
+
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
