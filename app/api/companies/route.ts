@@ -50,20 +50,21 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
-        const { name, image, description } = body;
+        const { name, description } = body;
 
         // Validate required fields
-        if (!name || !image || !description) {
+        if (!name || !description) {
             return NextResponse.json({
                 success: false,
                 message: 'All fields are required',
             }, { status: 400 });
         }
+        let image ='https://source.unsplash.com/featured/?company,office';
 
         const newCompany = await Company.create({
             name,
-            image,
             description,
+            image
         });
 
         return NextResponse.json({

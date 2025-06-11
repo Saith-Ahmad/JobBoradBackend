@@ -4,13 +4,17 @@ import Applicant from './Applicant';
 
 interface ICompany extends Document {
     name: string;
-    image: string;  // URL of the company logo (Cloudinary/Firebase URL)
+    image?: string;
     description: string;
 }
 
 const CompanySchema = new Schema<ICompany>({
-    name: { type: String, required: true, trim: true , unique:true},
-    image: { type: String, required: true },
+    name: { type: String, required: true, trim: true, unique: true },
+    image: {
+        type: String,
+        required: false,
+        default: 'https://source.unsplash.com/featured/?company,office'
+    },
     description: { type: String, required: true, trim: true },
 }, { timestamps: true });
 
