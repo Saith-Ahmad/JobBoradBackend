@@ -4,37 +4,33 @@ import Job from '@/models/Job';
 import { connectToDB } from '@/lib/db/db';
 
 
-
 export async function GET(req: Request) {
     await connectToDB();
     
     const { searchParams } = new URL(req.url);
     const jobId = searchParams.get('jobId');
-    const search = searchParams.get('search') || '';  // Extract search query if provided
-    const page = parseInt(searchParams.get('page') || '1', 10);  // Default page 1
-    const limit = parseInt(searchParams.get('limit') || '5', 10);  // Default limit 5 per page
-
-    const skip = (page - 1) * limit;  // Calculate how many records to skip
+    const search = searchParams.get('search') || '';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '5', 10);
+    const skip = (page - 1) * limit;
 
     try {
-        // Create search filter
         const searchFilter = search
             ? { $or: [{ name: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }] }
             : {};
 
-        // Create job filter
         const jobFilter = jobId ? { job: jobId } : {};
-
-        // Combine filters
         const filters = { ...searchFilter, ...jobFilter };
 
-        // Fetch applicants based on filters and pagination
         const applicants = await Applicant.find(filters)
-            .populate('job')
+            .populate({
+                path: 'job',
+                populate: { path: 'company' }, // 💥 populate company inside job
+            })
             .skip(skip)
             .limit(limit);
 
-        const totalApplicants = await Applicant.countDocuments(filters);  // For pagination info
+        const totalApplicants = await Applicant.countDocuments(filters);
 
         return NextResponse.json({
             success: true,
@@ -54,6 +50,7 @@ export async function GET(req: Request) {
         }, { status: 500 });
     }
 }
+
 
 
 // 🟢 POST a new applicant
