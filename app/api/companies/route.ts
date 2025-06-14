@@ -50,7 +50,8 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
-        const { name, description } = body;
+        const { name, description , image } = body;
+        console.log(name, description, image);
 
         // Validate required fields
         if (!name || !description) {
@@ -59,7 +60,6 @@ export async function POST(req: Request) {
                 message: 'All fields are required',
             }, { status: 400 });
         }
-        let image ='https://source.unsplash.com/featured/?company,office';
 
         const newCompany = await Company.create({
             name,
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
         console.error('Error creating company:', error);
         return NextResponse.json({
             success: false,
-            message: 'Failed to create company',
+            message: `Failed to create company ${error}`,
         }, { status: 500 });
     }
 }
